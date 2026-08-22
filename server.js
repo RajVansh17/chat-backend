@@ -3,6 +3,7 @@ dns.setServers(["8.8.8.8", "1.1.1.1"]);
 import app from "./src/app.js"
 import dotenv from "dotenv";
 import connectDB from "./src/config/connectDB.js";
+import testUserCreate from "./src/config/testUserCreate.js";
 
 dotenv.config();
 const PORT = process.env.PORT || 3000;
@@ -24,3 +25,5 @@ const startServer = async () => {
 }
 
 startServer();
+
+// testUserCreate();
