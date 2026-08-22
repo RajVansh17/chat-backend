@@ -166,6 +166,14 @@ const login = async (req, res) => {
     }
 }
 
+const me = (req,res) =>{
+    return res.status(200).json(
+        {
+            message:"middleware working successfully"
+        }
+    )
+}
+
 export {
-    register, login
+    register, login, me
 }
