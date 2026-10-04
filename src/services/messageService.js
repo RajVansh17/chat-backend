@@ -7,8 +7,8 @@ export const createMessage = async (
     content
 ) => {
     const message = await Message.create({
-        conversationId,
-        senderId,
+        conversation: conversationId,
+        sender: senderId,
         content
     });
 
@@ -23,3 +23,22 @@ export const createMessage = async (
 
     return message;
 }
+
+export const getConversationMessages = async (
+    conversationId,
+    page = 1,
+    limit = 50
+) => {
+    const skip = (page - 1)*limit;
+
+    const messages = await Message.find({
+        conversation: conversationId
+    })
+        .sort({createdAt:1})
+        .skip(skip)
+        .limit(limit)
+        .populate("sender", "_id username");
+
+    return messages;
+};
+

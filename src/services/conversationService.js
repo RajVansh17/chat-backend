@@ -86,11 +86,22 @@ export const getUserConversations = async (userId) => {
     }
 };
 
-export const isConversationMember= async (userId, conversationId) => {
-    const conversation = await Conversation.find({
-        _id: conversationId,
-        member: userId, 
-    })
 
-    return !!conversation;
+export const isConversationMember = async (userId, conversationId) => {
+    const conversation = await Conversation.findOne({
+        _id: conversationId,
+    });
+
+    // console.log("Conversation from DB:", conversation);
+    // console.log("User checking:", userId);
+
+    if (!conversation) {
+        return false;
+    }
+
+    // console.log("Conversation members:", conversation.members);
+
+    return conversation.members.some(
+        (memberId) => memberId.toString() === userId.toString()
+    );
 };

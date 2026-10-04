@@ -3,6 +3,7 @@ import cors from "cors";
 import authRoutes from "./routes/authRoutes.js"
 import userRoutes from "./routes/userRoutes.js";
 import convoRoutes from "./routes/convoRoutes.js";
+import messageRoutes from "./routes/messageRoute.js"
 const app = express();
 
 app.use(cors());
@@ -20,5 +21,6 @@ app.get('/api/health', (req,res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/conversations', convoRoutes);
+app.use('/api/conversations', messageRoutes);
 
 export default app;
