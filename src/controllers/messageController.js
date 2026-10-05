@@ -69,7 +69,7 @@ export const getConversationMessagesController = async (req, res) => {
         }
 
         // 4. Get messages
-        const messages = await getConversationMessages(
+        const result = await getConversationMessages(
             conversationId,
             page,
             limit
@@ -78,13 +78,10 @@ export const getConversationMessagesController = async (req, res) => {
         // 5. Send response
         return res.status(200).json({
             success: true,
-            messages,
-            pagination: {
-                page,
-                limit,
-                count: messages.length,
-            },
-        });
+            messages: result.messages,
+            pagination: result.pagination
+            }
+        );
     } catch (error) {
         console.error("Get conversation messages error:", error);
 

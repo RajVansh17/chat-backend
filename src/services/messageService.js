@@ -31,14 +31,36 @@ export const getConversationMessages = async (
 ) => {
     const skip = (page - 1)*limit;
 
-    const messages = await Message.find({
-        conversation: conversationId
-    })
+    const [messages, totalMessages] = await Promise.all([
+        Message.find({
+            conversation: conversationId,
+        })
         .sort({createdAt:1})
         .skip(skip)
         .limit(limit)
-        .populate("sender", "_id username");
+        .populate("sender", "_id username")
+        
+        ,
 
-    return messages;
+        Message.countDocuments({
+            conversation:conversationId,
+        })
+
+    ]);
+    
+    const totalPages = Math.ceil(totalMessages/limit);
+
+    return {
+        messages,
+        pagination: {
+            page,
+            limit,
+            totalMessages,
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPreviousPage: page > 1,
+        },
+    };
+
 };
 
