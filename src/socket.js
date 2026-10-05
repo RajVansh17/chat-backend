@@ -1,5 +1,6 @@
 import { Server } from "socket.io"
 import { isConversationMember } from "./services/conversationService.js";
+import { createMessage } from "./services/messageService.js";
 import jwt from "jsonwebtoken";
 
 export const initializeSocket = (server) => {
@@ -70,12 +71,13 @@ export const initializeSocket = (server) => {
         });
 
         //sending message event
-        socket.on("message:send", async (data) => {
+        socket.on("message:send", async (data, callback) => {
             try {
                 const { conversationId, content } = data;
 
                 if (!conversationId || typeof content !== "string") {
-                    return socket.emit("message:error", {
+                    return callback({
+                        success: false,
                         message: "Invalid message data",
                     });
                 }
@@ -86,22 +88,27 @@ export const initializeSocket = (server) => {
                 );
 
                 if (!isMember) {
-                    return socket.emit("message:error", {
+                    console.log(0)
+                    return callback({
+                        success: false,
                         message: "You are not a member of this conversation",
                     });
+
                 }
 
                 const trimmedContent = content.trim();
 
                 if (!trimmedContent) {
-                    return socket.emit("message:error", {
+                    return callback({
+                        success: false,
                         message: "Message cannot be empty",
                     });
                 }
 
                 if (trimmedContent.length > 2000) {
-                    return socket.emit("message:error", {
-                        message: "Message cannot exceed 2000 characters",
+                    return callback({
+                        success: false,
+                        message: "Message length exceeded",
                     });
                 }
                 // create message in the database
@@ -112,6 +119,7 @@ export const initializeSocket = (server) => {
                 );
 
                 console.log("Message created:", message._id);
+                
                 // sending message to the user 
                 io.to(`conversation:${conversationId}`).emit("message:new", {
                     id: message._id,
@@ -120,11 +128,24 @@ export const initializeSocket = (server) => {
                     content: message.content,
                     createdAt: message.createdAt,
                 });
+
+                callback({
+                    success: true,
+                    message: {
+                        message: "Sent successfully",
+                        id: message._id,
+                        conversationId: message.conversation,
+                        senderId: message.sender,
+                        content: message.content,
+                        createdAt: message.createdAt,
+                    },
+                });
             } catch (error) {
                 console.error("Send message error:", error);
 
-                socket.emit("message:error", {
-                    message: "Unable to send message",
+                return callback({
+                    success: false,
+                    message: "Unexpected error occured",
                 });
             }
         });
